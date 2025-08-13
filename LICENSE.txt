@@ -1,0 +1,9 @@
+Copyright (c) 2025 Soy ese
+
+La Guerra de los Dos Frentes — Phaser 3 Demo
+
+Todos los derechos reservados. 
+
+Se permite usar y modificar este juego **solo si se me da crédito** como autor. 
+Queda prohibida la venta o distribución del juego sin mi autorización. 
+No me responsabilizo por usos de terceros no autorizados.
