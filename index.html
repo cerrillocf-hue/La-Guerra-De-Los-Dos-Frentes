@@ -1,82 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>La Guerra de los Dos Frentes</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.70.0/phaser.min.js"></script>
-    <style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#000;font-family:Arial}#game-container{border:2px solid #333}</style>
+  <meta charset="UTF-8">
+  <title>Juegos</title>
 </head>
 <body>
-    <div id="game-container"></div>
-    <script>
-        let g = {dialogoIdx:0,contadorPasos:0,ultimaTecla:'',respuestaAgresiva:false,pasilloActual:1,mostrarDialogo:false,npcHablando:null,diaActual:1,epilogoMostrado:false,npcsHablados:[],alexPos:{x:100,y:400}};
-        const d = {1:{p1:[{nombre:"Marco",x:200,y:300,dialogos:["Marco: De milagro acabamos eso.","Marco: Si a mí me respecta, nos dieron poco tiempo.","Alex: Efectivamente, amigo mío."]},{nombre:"Renzo",x:100,y:100,dialogos:["Renzo: Algunos dicen que en clase me veo diferente.","Alex: ¿Y eso es bueno o malo?","Renzo: Depende de quién esté mirando."]}],p2:[{nombre:"Samuel",x:400,y:250,dialogos:["Samuel: Estoy trabajando en algo.","Samuel: No preguntes qué."]},{nombre:"Axel",x:600,y:350,dialogos:["Axel: Hola Alex, ¿cómo te va? Espero que bien.","Alex: ¿Y por qué ese hábito de entrar por la ventana?","Axel: Pues digamos que mi casa está más cerca de la ventana que de la puerta del aula.","Axel: Además que a veces me pierdo por ese camino.","Alex: Sí, es como un súper laberinto."]},{nombre:"Tedd",x:300,y:450,dialogos:["Tedd: ¿Cómo estuvo la pijamada para la tarea con Marco?","Alex: Muy buena, sí sí sí.","Tedd: Uy sí, claro..."]}],req:["Marco","Renzo","Samuel","Axel","Tedd"],epilogo:{texto:["Alex: Todo parece tranquilo...","Ni bien ni mal."]}}};
-
-        class IntroScene extends Phaser.Scene {
-            constructor(){super({key:'IntroScene'});this.t=["Antes de jugar te tengo que decir algo","Gracias por jugar, significa mucho para mí","¿Qué? ¿Esperabas más introducción?","Este juego está hecho con 2 soles, no le pidas mucho"];this.i=0;}
-            create(){this.mostrar();}
-            mostrar(){if(this.i>=this.t.length){this.scene.start('MenuScene');return;}const txt=this.add.text(400,300,this.t[this.i],{fontSize:'28px',fill:'#fff',align:'center'}).setOrigin(0.5).setAlpha(0);this.tweens.add({targets:txt,alpha:1,duration:1000,onComplete:()=>this.time.delayedCall(1500,()=>this.tweens.add({targets:txt,alpha:0,duration:1000,onComplete:()=>{this.i++;this.time.delayedCall(500,()=>this.mostrar());}}))});}
-        }
-
-        class MenuScene extends Phaser.Scene {
-            constructor(){super({key:'MenuScene'});}
-            create(){this.add.text(400,250,'La Guerra de los Dos Frentes',{fontSize:'48px',fill:'#fff',align:'center'}).setOrigin(0.5);this.add.text(400,350,'Presiona ENTER para iniciar',{fontSize:'28px',fill:'#999',align:'center'}).setOrigin(0.5);this.input.keyboard.once('keydown-ENTER',()=>this.scene.start('DespertarScene'));}
-        }
-
-        class DespertarScene extends Phaser.Scene {
-            constructor(){super({key:'DespertarScene'});this.dialogos=["Marco: ¡Alex! ¡Despierta!","Marco: ¡Nos quedamos dormidos!","Marco: Si llegamos tarde otra vez, nos van a separar...","Marco: ¡Muévete! ¡No pienso correr solo otra vez!"];}
-            create(){this.add.rectangle(400,300,800,600,0x4a4a4a);this.add.text(400,100,'🏠 CUARTO DE ALEX',{fontSize:'24px',fill:'#fff'}).setOrigin(0.5);this.add.rectangle(400,300,200,350,0x8B4513);this.add.text(400,250,'MARCO',{fontSize:'20px',fill:'#fff'}).setOrigin(0.5);this.mostrarDialogo();this.input.keyboard.on('keydown-ENTER',()=>{g.dialogoIdx++;if(g.dialogoIdx>=this.dialogos.length){this.scene.start('CorrerScene');g.dialogoIdx=0;}else this.mostrarDialogo();});}
-            mostrarDialogo(){if(this.dialogoText)this.dialogoText.destroy();this.dialogoText=this.add.text(40,g.dialogoIdx<this.dialogos.length?500:540,g.dialogoIdx<this.dialogos.length?this.dialogos[g.dialogoIdx]:'Presiona ENTER...',{fontSize:'28px',fill:'#fff',backgroundColor:'#000',padding:{x:10,y:5}});}
-        }
-
-        class CorrerScene extends Phaser.Scene {
-            constructor(){super({key:'CorrerScene'});}
-            create(){this.add.rectangle(400,300,800,600,0x666666);this.add.text(400,100,'🏃‍♂️ CALLE HACIA LA ESCUELA',{fontSize:'24px',fill:'#fff'}).setOrigin(0.5);this.instruccionText=this.add.text(40,500,'¡Corre! Alterna A y D para avanzar',{fontSize:'28px',fill:'#fff',backgroundColor:'#000',padding:{x:10,y:5}});this.pasosText=this.add.text(40,540,`Pasos: ${g.contadorPasos}`,{fontSize:'28px',fill:'#fff',backgroundColor:'#000',padding:{x:10,y:5}});this.input.keyboard.on('keydown-A',()=>this.alternar('A'));this.input.keyboard.on('keydown-D',()=>this.alternar('D'));}
-            alternar(tecla){if(tecla!==g.ultimaTecla){g.contadorPasos++;g.ultimaTecla=tecla;this.pasosText.setText(`Pasos: ${g.contadorPasos}`);if(g.contadorPasos>=30)this.scene.start('LlegadaScene');}}
-        }
-
-        class LlegadaScene extends Phaser.Scene {
-            constructor(){super({key:'LlegadaScene'});}
-            create(){this.add.rectangle(400,300,800,600,0x8B4513);this.add.text(400,30,'📚 AULA DE CLASES — DÍA 1',{fontSize:'24px',fill:'#fff'}).setOrigin(0.5);this.add.text(40,70,'Te sientas en tu sitio, aún respirando agitado...',{fontSize:'28px',fill:'#fff'});this.add.text(40,110,g.contadorPasos>=30?'Marco se sienta a tu lado, orgulloso.':'Renzo te lanza una sonrisa sarcástica desde la primera fila.',{fontSize:'28px',fill:'#fff'});this.add.text(40,150,'Samuel está al fondo, dibujando algo raro en su cuaderno.',{fontSize:'28px',fill:'#fff'});this.add.text(40,190,'Axel entra por la ventana, otra vez. A nadie parece importarle.',{fontSize:'28px',fill:'#fff'});this.add.text(40,540,'Presiona ENTER para continuar...',{fontSize:'28px',fill:'#fff',backgroundColor:'#000',padding:{x:10,y:5}});this.input.keyboard.once('keydown-ENTER',()=>this.scene.start('IniDiaScene'));}
-        }
-
-        class IniDiaScene extends Phaser.Scene {
-            constructor(){super({key:'IniDiaScene'});}
-            create(){this.add.rectangle(400,300,800,600,0x8B4513);this.add.rectangle(400,300,200,350,0x228B22);this.add.text(400,250,'RENZO',{fontSize:'20px',fill:'#fff'}).setOrigin(0.5);this.add.text(40,500,'Renzo: ¿Qué? ¿Por qué llegaste corriendo?',{fontSize:'28px',fill:'#fff',backgroundColor:'#000',padding:{x:10,y:5}});this.add.text(40,540,'[Z] Defenderse    [X] Quedarse callado',{fontSize:'28px',fill:'#fff',backgroundColor:'#000',padding:{x:10,y:5}});this.input.keyboard.once('keydown-Z',()=>{g.respuestaAgresiva=true;this.scene.start('RespuestaScene');});this.input.keyboard.once('keydown-X',()=>{g.respuestaAgresiva=false;this.scene.start('RespuestaScene');});}
-        }
-
-        class RespuestaScene extends Phaser.Scene {
-            constructor(){super({key:'RespuestaScene'});}
-            create(){this.add.rectangle(400,300,800,600,0x8B4513);this.add.rectangle(400,300,200,350,0x228B22);this.add.text(400,250,'RENZO',{fontSize:'20px',fill:'#fff'}).setOrigin(0.5);this.add.text(40,500,g.respuestaAgresiva?'Alex: Mira Renzo, no me hables. Estoy cansado.':'Alex: Fue una locura llegar a tiempo. Pero lo logramos.',{fontSize:'28px',fill:'#fff',backgroundColor:'#000',padding:{x:10,y:5}});this.add.text(40,540,'Presiona ENTER...',{fontSize:'28px',fill:'#fff',backgroundColor:'#000',padding:{x:10,y:5}});this.input.keyboard.once('keydown-ENTER',()=>this.scene.start('DiaScene'));}
-        }
-
-        class DiaScene extends Phaser.Scene {
-            constructor(){super({key:'DiaScene'});}
-            create(){this.add.rectangle(400,300,800,600,0x8B4513);this.add.text(40,500,'📅 INICIA EL DÍA 1 — ¡Explora libremente!',{fontSize:'28px',fill:'#fff',backgroundColor:'#000',padding:{x:10,y:5}});this.add.text(40,540,'Presiona ENTER para entrar al Overworld',{fontSize:'28px',fill:'#fff',backgroundColor:'#000',padding:{x:10,y:5}});this.input.keyboard.once('keydown-ENTER',()=>{g.diaActual=1;g.mostrarDialogo=false;g.npcHablando=null;this.scene.start('OverworldScene');});}
-        }
-
-        class OverworldScene extends Phaser.Scene {
-            constructor(){super({key:'OverworldScene'});}
-            preload(){this.load.image('alex','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==');}
-            create(){this.cursors=this.input.keyboard.createCursorKeys();this.wasd=this.input.keyboard.addKeys('W,S,A,D');this.eKey=this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);this.enterKey=this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);this.eKey.on('down',()=>this.iniciarDialogo());this.enterKey.on('down',()=>this.avanzarDialogo());this.npcs=this.physics.add.staticGroup();this.crearNPCs();this.alex=this.physics.add.sprite(g.alexPos.x,g.alexPos.y,'alex');this.alex.setDisplaySize(60,100);this.alex.setTint(0x0000FF);this.npcCercano=null;this.mostrarInstrucciones();}
-            crearNPCs(){const cfg=d[g.diaActual];if(!cfg)return;const pers=g.pasilloActual===1?cfg.p1:cfg.p2;pers.forEach(p=>{const npc=this.physics.add.sprite(p.x,p.y,'alex');npc.setDisplaySize(60,100);npc.setTint(this.getColorForCharacter(p.nombre));npc.nombre=p.nombre;npc.dialogos=[...p.dialogos];npc.dialogoActual=0;this.npcs.add(npc);this.add.text(p.x,p.y-60,p.nombre,{fontSize:'16px',fill:'#fff',align:'center'}).setOrigin(0.5);});}
-            getColorForCharacter(nombre){const c={Marco:0x8B4513,Renzo:0x228B22,Samuel:0x800080,Axel:0xFF4500,Tedd:0x4169E1};return c[nombre]||0xFFFFFF;}
-            mostrarInstrucciones(){if(this.instruccionesText)this.instruccionesText.destroy();this.instruccionesText=this.add.text(40,20,'Usa WASD o Flechas para moverte — E para hablar — ENTER para avanzar diálogo',{fontSize:'16px',fill:'#fff',backgroundColor:'#000',padding:{x:5,y:2}});}
-            update(){let vel=8*10;if(this.cursors.left.isDown||this.wasd.A.isDown){this.alex.setVelocityX(-vel);g.direccionAlex='izquierda';}else if(this.cursors.right.isDown||this.wasd.D.isDown){this.alex.setVelocityX(vel);g.direccionAlex='derecha';}else this.alex.setVelocityX(0);if(this.cursors.up.isDown||this.wasd.W.isDown){this.alex.setVelocityY(-vel);}else if(this.cursors.down.isDown||this.wasd.S.isDown){this.alex.setVelocityY(vel);}else this.alex.setVelocityY(0);if(this.alex.x>=800&&g.pasilloActual===1){g.pasilloActual=2;this.alex.x=50;this.actualizarPasillo();}else if(this.alex.x<=0&&g.pasilloActual===2){g.pasilloActual=1;this.alex.x=750;this.actualizarPasillo();}this.npcCercano=null;this.npcs.children.entries.forEach(npc=>{const dist=Phaser.Math.Distance.Between(this.alex.x,this.alex.y,npc.x,npc.y);if(dist<80)this.npcCercano=npc;});if(this.npcCercano&&!g.mostrarDialogo){if(this.hablarText)this.hablarText.destroy();this.hablarText=this.add.text(40,540,`[E] Hablar con ${this.npcCercano.nombre}`,{fontSize:'20px',fill:'#fff',backgroundColor:'#000',padding:{x:5,y:2}});}else if(!g.mostrarDialogo){if(this.hablarText){this.hablarText.destroy();this.hablarText=null;}}g.alexPos.x=this.alex.x;g.alexPos.y=this.alex.y;this.verificarCompletado();}
-            actualizarPasillo(){this.npcs.clear(true,true);this.crearNPCs();}
-            iniciarDialogo(){if(this.npcCercano&&!g.mostrarDialogo){g.npcHablando=this.npcCercano;g.npcHablando.dialogoActual=0;g.mostrarDialogo=true;this.mostrarDialogoActual();}}
-            mostrarDialogoActual(){if(this.dialogoText)this.dialogoText.destroy();if(this.hablarText){this.hablarText.destroy();this.hablarText=null;}if(g.npcHablando.dialogoActual<g.npcHablando.dialogos.length){this.dialogoText=this.add.text(40,500,g.npcHablando.dialogos[g.npcHablando.dialogoActual],{fontSize:'20px',fill:'#fff',backgroundColor:'#000',padding:{x:5,y:2}});}else{if(!g.npcsHablados.includes(g.npcHablando.nombre))g.npcsHablados.push(g.npcHablando.nombre);g.mostrarDialogo=false;g.npcHablando=null;if(this.dialogoText)this.dialogoText.destroy();}}
-            avanzarDialogo(){if(g.mostrarDialogo&&g.npcHablando){g.npcHablando.dialogoActual++;this.mostrarDialogoActual();}}
-            verificarCompletado(){const cfg=d[g.diaActual];if(!cfg)return;const req=cfg.req;const hab=new Set(g.npcsHablados);const nec=new Set(req);if(!g.epilogoMostrado&&hab.size===nec.size&&[...nec].every(npc=>hab.has(npc))){g.epilogoMostrado=true;this.scene.start('EpilogoScene');}}
-        }
-
-        class EpilogoScene extends Phaser.Scene {
-            constructor(){super({key:'EpilogoScene'});}
-            create(){this.add.rectangle(400,300,800,600,0x2F4F4F);const cfg=d[g.diaActual];const txt=cfg?cfg.epilogo.texto:["Final del día"];this.add.text(400,100,'✨ EPÍLOGO DEL DÍA',{fontSize:'32px',fill:'#fff'}).setOrigin(0.5);const alex=this.add.rectangle(800,350,60,100,0x0000FF);this.tweens.add({targets:alex,x:400,duration:2000,ease:'Power2',onComplete:()=>this.mostrarTexto(txt,0)});}
-            mostrarTexto(txt,i){if(i>=txt.length){this.add.text(400,550,'¡Gracias por jugar!',{fontSize:'24px',fill:'#fff'}).setOrigin(0.5);return;}if(this.textoActual)this.textoActual.destroy();this.textoActual=this.add.text(40,500,txt[i],{fontSize:'24px',fill:'#fff',backgroundColor:'#000',padding:{x:10,y:5}});this.add.text(40,540,'Presiona ENTER...',{fontSize:'20px',fill:'#999',backgroundColor:'#000',padding:{x:5,y:2}});this.input.keyboard.once('keydown-ENTER',()=>this.mostrarTexto(txt,i+1));}
-        }
-
-        new Phaser.Game({type:Phaser.AUTO,width:800,height:600,parent:'game-container',backgroundColor:'#000000',scene:[IntroScene,MenuScene,DespertarScene,CorrerScene,LlegadaScene,IniDiaScene,RespuestaScene,DiaScene,OverworldScene,EpilogoScene],physics:{default:'arcade',arcade:{debug:false}}});
-    </script>
+  <h1>Bienvenido</h1>
+  <p>Haz clic para entrar:</p>
+  <ul>
+    <li><a href="La guerra de los dos frentes/index.html">La Guerra de los Dos Frentes</a></li>
+  </ul>
 </body>
 </html>
